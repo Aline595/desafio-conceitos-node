@@ -11,25 +11,6 @@ app.use(cors());
 
 const repositories = [];
 
-function validaId(request, response, next){
-  const { id } = request.params;
-
-  if( !isUuid(id) ){
-    return response.status(400).json({ error: "Invalid repository ID." });
-  }
-  return next();
-}
-
-function validaLikes(request, response, next){
-  const { likes } = request.params;
-
-  if ( likes > 0){
-    return response.status(400).json({ error: "Número de likes maior que zero" });
-  }
-
-  return next();
-}
-
 //GET /repositories: Rota que lista todos os repositórios;
 app.get("/repositories", (request, response) => {
   
@@ -114,7 +95,7 @@ app.post("/repositories/:id/like", (request, response) => {
 
   const repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
-  if (repositoryIndex === -1){
+  if (repositoryIndex < 0){
     return response.status(400).json({ error: "Repository not found." });
   }
 
