@@ -44,7 +44,7 @@ formato: { id: "uuid", title: 'Desafio Node.js', url: 'http://github.com/...',
 techs: ["Node.js", "..."], likes: 0 }; Certifique-se que o ID seja um UUID, 
 e de sempre iniciar os likes como 0.
 */
-app.post("/repositories", validaId, validaLikes, (request, response) => {
+app.post("/repositories", (request, response) => {
   const  { title, url,  techs } = request.body;
 
   const repository = {
@@ -52,7 +52,7 @@ app.post("/repositories", validaId, validaLikes, (request, response) => {
     title,
     url,
     techs,
-    likes,
+    likes: 0,
   };
 
   repositories.push(repository);
@@ -67,9 +67,9 @@ app.post("/repositories", validaId, validaLikes, (request, response) => {
  */
 app.put("/repositories/:id", (request, response) => {
   const { id } = request.params;
-  const { title, url, techs} = request.params;
+  const { title, url, techs} = request.body;
 
-  const repositoryIndex = repository.findIndex(repository => repository.id === id);
+  const repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
   if (repositoryIndex < 0){
     return response.status(400).json({ error: "Repository not found." });
@@ -84,15 +84,17 @@ app.put("/repositories/:id", (request, response) => {
 
   repositories[repositoryIndex] = repository;
 
+  return response.json(repository);
 });
-/***
+
+/*** 
  * DELETE /repositories/:id: A rota deve deletar o repositório com o 
  * id presente nos parâmetros da rota;
  */
 app.delete("/repositories/:id", (request, response) => {
   const { id } = request.params;
 
-  const repositoryIndex = repository.findIndex(repository => repository.id === id);
+  const repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
   if (repositoryIndex < 0){
     return response.status(400).json({ error: "Repository not found." });
@@ -108,24 +110,17 @@ app.delete("/repositories/:id", (request, response) => {
  *  rota, a cada chamada dessa rota, o número de likes deve ser aumentado em 1;
  */
 app.post("/repositories/:id/like", (request, response) => {
-  const { id, like } = request.params;
-  
-  const aumentaLikes = like++;
+  const { id } = request.params;
 
-  const repositoryIndex = repository.findIndex(repository => repository.id === id);
+  const repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
-  if (repositoryIndex < 0){
+  if (repositoryIndex === -1){
     return response.status(400).json({ error: "Repository not found." });
   }
 
-  const repository = {
-    id, 
-    like,
-  }
+  repositories[repositoryIndex].likes++;
 
-  repositories[repositoryIndex] = repository;
-
-  return response.json(repositories);
+  return response.json(repositories[repositoryIndex]);
 
 });
 
